@@ -1,0 +1,77 @@
+import React, { useState } from 'react';
+
+const Index = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [response, setResponse] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('/api/bfhl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: JSON.parse(inputValue) }),
+      });
+      const data = await response.json();
+      setResponse(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSelectChange = (event) => {
+    const selectedOptions = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedOptions(selectedOptions);
+  };
+
+  const renderResponse = () => {
+    if (!response) return null;
+    const { numbers, alphabets, highest_lowercase_alphabet } = response;
+    const selectedData = selectedOptions.reduce((acc, option) => {
+      switch (option) {
+        case 'Alphabets':
+          return [...acc, ...alphabets];
+        case 'Numbers':
+          return [...acc, ...numbers];
+        case 'Highest lowercase alphabet':
+          return [...acc, highest_lowercase_alphabet[0]];
+        default:
+          return acc;
+      }
+    }, []);
+
+    return (
+      <div>
+        <h2>Response</h2>
+        <ul>
+          {selectedData.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <h1>RA2111028010086</h1>
+      <form onSubmit={handleSubmit}>
+        <textarea value={inputValue} onChange={(event) => setInputValue(event.target.value)} />
+        <button type="submit">Submit</button>
+      </form>
+      {response && (
+        <
+          <select multiple value={selectedOptions} onChange={handleSelectChange}>
+            <option value="Alphabets">Alphabets</option>
+            <option value="Numbers">Numbers</option>
+            <option value="Highest lowercase alphabet">Highest lowercase alphabet</option>
+          </select>
+          {renderResponse()}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Index;
